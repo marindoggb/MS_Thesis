@@ -1,0 +1,135 @@
+---
+title: "WD_analyses"
+author: "Marín Dögg Bjarnadóttir"
+date: '2022-09-05'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("gogn_preprocess.R")
+```
+
+
+
+### CC
+
+
+```{r}
+fitsDNA05<-geeglm(as.numeric(binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), data=gognDNA,family=poisson, id=as.factor(pin))
+```
+
+```{r}
+summary(fitsDNA05)
+```
+
+```{r}
+CIfCC<-tidy(fitsDNA05, conf.int = TRUE, exponentiate = TRUE)
+```
+
+
+
+### PMM
+
+
+```{r}
+load("./gogn_og_imp_saved/imp_PMM_m25_WD")
+```
+
+
+```{r}
+plot(imp_PMM_m25_WD)
+```
+
+
+
+```{r}
+fit_PMM_WD <- with(imp_PMM_m25_WD, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=pin))
+est_PMM_WD <- pool(fit_PMM_WD) #otharfi tvi bara eitt imputation)
+coef_PMM_WD<-exp(summary(est_PMM_WD)$estimate)
+
+CIfPMM<-(summary(pool(fit_PMM_WD), conf.int = TRUE, exponentiate = TRUE)) # Bua til CI fyrir coef
+```
+
+
+
+
+
+
+### SI
+
+
+```{r}
+load("./gogn_og_imp_saved/imp_SI_m25_WD")
+```
+
+
+```{r}
+plot(imp_SI_m25_WD)
+```
+
+
+```{r}
+fit_SI_WD <- with(imp_SI_m25_WD, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=pin))
+coef_SI_WD<-exp(summary(fit_SI_WD)$estimate)
+
+CIfSI<-(summary((fit_SI_WD), conf.int = TRUE, exponentiate=TRUE)) # Bua til CI fyrir coef
+```
+
+
+
+
+
+
+### MICE
+
+
+```{r}
+load("./gogn_og_imp_saved/imp_MICE_m25_WD")
+```
+
+
+```{r}
+plot(imp_MICE_m25_WD)
+```
+
+
+```{r}
+fit_MICE_WD <- with(imp_MICE_m25_WD, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=pin))
+est_MICE_WD <- pool(fit_MICE_WD) #otharfi tvi bara eitt imputation)
+coef_MICE_WD<-exp(summary(est_MICE_WD)$estimate)
+
+CIfMICE<-(summary(pool(fit_MICE_WD), conf.int = TRUE, exponentiate=TRUE)) # Bua til CI fyrir coef
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
