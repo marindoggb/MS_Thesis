@@ -78,7 +78,7 @@ print(xtable(huhu05_PMM_1000r, digits=4,type = "latex"), file = "huhu05_PMM_1000
 
 
 
-#### the rest is all the same except with different level of missingness
+#### the rest is all the same except with different level of missingness and different methods
 
 ### 0.1
 
