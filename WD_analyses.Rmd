@@ -1,0 +1,122 @@
+---
+title: "WD_analyses"
+author: "Marín Dögg Bjarnadóttir"
+date: '2022-09-05'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("gogn_preprocess.R")  #get data and packages
+```
+
+
+
+### CC
+
+
+```{r}
+gognfCC<-gognmNA %>% select(pin, agecalculated, fjolSamband2, menntun2, tekjurEigin, ACE_f_total_cat, binary_trait, deprivation ) %>% na.omit()  # create dataset without NAs for the variables used in CCA
+
+```
+
+
+```{r}
+fitsDNA05<-geeglm(binary_trait==1 ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), data=gognfCC,family=poisson, id=as.factor(pin)) 
+```
+
+
+```{r}
+summary(fitsDNA05)
+```
+
+```{r}
+CIfCC<-tidy(fitsDNA05, conf.int = TRUE, exponentiate = TRUE) # Create a data to be used for comparison table
+```
+
+
+
+### PMM
+
+
+```{r}
+load("./gogn_og_imp/imp_PMM_m25_WD")  # load MI-PMM imputations
+```
+
+
+```{r}
+plot(imp_PMM_m25_WD)  #plot convergence plots
+```
+
+
+
+```{r}
+fit_PMM_WD <- with(imp_PMM_m25_WD, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=pin))   # fit the regression model to each dataset
+est_PMM_WD <- pool(fit_PMM_WD) # pool the fits together
+
+CIfPMM<-(summary(pool(fit_PMM_WD), conf.int = TRUE, exponentiate = TRUE)) # Create data for comparison table
+```
+
+
+
+
+
+
+### SI
+
+
+```{r}
+load("./gogn_og_imp/imp_SI_m25_WD") #load SI-PMM imputation
+```
+
+
+```{r}
+plot(imp_SI_m25_WD) #plot convergence plot
+```
+
+
+```{r}
+fit_SI_WD <- with(imp_SI_m25_WD, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=pin)) #fit the single data, no need to pool here
+
+CIfSI<-(summary((fit_SI_WD), conf.int = TRUE, exponentiate=TRUE)) # create data for comparison table
+```
+
+
+
+
+
+
+### MICE
+
+
+```{r}
+load("./gogn_og_imp/imp_MICE_m25_WD")  # load MI-MICE imputations
+```
+
+
+```{r}
+plot(imp_MICE_m25_WD) # convergence plots
+```
+
+
+```{r}
+fit_MICE_WD <- with(imp_MICE_m25_WD, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=pin)) # fit the m datasets
+est_MICE_WD <- pool(fit_MICE_WD) # pool the fits
+
+CIfMICE<-(summary(pool(fit_MICE_WD), conf.int = TRUE, exponentiate=TRUE)) # Create data for the comparison table
+```
+
+
+
+
+```{r}
+bera_saman_OR<-round(data.frame(CIfCC$estimate, coef_PMM_WD, coef_MICE_WD, coef_SI_WD),3) # to create table for ORs
+bera_saman_CI<-data.frame(CIfCC$conf.low, CIfCC$conf.high, CIfMICE$`2.5 %`, CIfMICE$`97.5 %`, CIfPMM$`2.5 %`, CIfPMM$`97.5 %`, CIfSI$conf.low, CIfSI$conf.high)  # to create table for CI
+```
+
+
+
+
