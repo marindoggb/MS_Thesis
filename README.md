@@ -21,11 +21,9 @@ For the sample study analysis:
 
 The other files:
 
-Auxiliary_analysis_plots.Rmd  - This is where the auxiliary plots are created. Here is the 20.000 sample size, and again the only difference is to Ctrl-F.
-
-NA_plots.Rmd                  - This is where the NA plots are created
-
-toflur_ritgerd.R              - This is where some of the tables are created that are not created in the other files.
+1. Auxiliary_analysis_plots.Rmd  - This is where the auxiliary plots are created. Here is the 20.000 sample size, and again the only difference is to Ctrl-F.
+2. NA_plots.Rmd                  - This is where the NA plots are created
+3. toflur_ritgerd.R              - This is where some of the tables are created that are not created in the other files.
 
 
 
