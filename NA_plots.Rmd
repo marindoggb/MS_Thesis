@@ -1,0 +1,330 @@
+---
+title: "NA_plots"
+author: "Marín Dögg Bjarnadóttir"
+date: '2023-01-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("gogn_preprocess.R")
+```
+
+
+
+```{r}
+
+vu<-gogn
+
+
+
+vu$deprivation<- factor(ifelse(vu$deprivation=="Never", "No","Yes"), ordered= FALSE, levels=c("No", "Yes"))
+
+
+
+vu$tekjurEigin<-factor(vu$tekjurEigin, ordered= TRUE, levels=c( "<300", "301-500", "501-700", "701+"))
+
+levels(vu$tekjurEigin) <- c("<300", "<300", "301-500", "501-700", "701+", "701+")
+
+vu<-vu %>% select_all() %>% filter(agecalculated < 70) 
+
+new_DF<-af_saga_id[,c(1,139:150)]
+new_DF <- new_DF[rowSums(is.na(new_DF)) > 0,]
+
+
+
+new_DF<-merge(x=new_DF,y=gognmNA,by="pin",all.x=TRUE)
+new_DF<-droplevels(na_if(new_DF, "Unknown"))
+new_DF<- new_DF[!rowSums(is.na(new_DF))>33,]
+
+new_DF$LEC_to_me_or_witness<-(na_if(new_DF$LEC_to_me_or_witness, 0))
+
+
+
+new_DF<-new_DF[,c(1,14:37)]
+
+vu<-anti_join(vu, new_DF, by = "pin")
+
+vu<-rbind(vu, new_DF)
+
+
+```
+
+
+```{r}
+
+
+gogn<-data # derived_variables_220510 gognin heita data hja mer
+gogn<-gogn[,c(1,2,7,9,10,11,14,15,16,18,19,21,23,25,29,35,66,67,72,76,79,82,94,97,107)] 
+
+gogn$ACE_f_total_cat <- cut(gogn$ACE_f_total,         # Setja ACE i cat eins og i grein
+                            breaks=c(-1,0, 1, 2,  4,19),
+                            labels=c("0",'1', '2', "3-4" ,"5+"))
+gogn$binary_trait <- as.factor(ifelse(gogn$CD_RISC_total >=35, 1, 0)) # Breyta CD_RISC i binary breytu eins og i grein
+gogn<-gogn[,-16] # tek ut ACE sem er ekki cat
+gogn<-gogn[,-16] #taka ut CD_risk
+
+
+gognmNA<-gogn
+#gognmNA<-na_if(gogn, "Cant/wont answer")    # Breyta Cant/wont answer og Unknown i NA
+gognmNA<-droplevels(na_if(gognmNA, "Unknown"))
+
+
+
+
+gognmNA$deprivation<- factor(ifelse(gognmNA$deprivation=="Never", "No","Yes"), ordered= TRUE, levels=c("No", "Yes"))
+
+
+#gognmNA$tekjurEigin<-factor(gognmNA$tekjurEigin, ordered= TRUE, levels=c( "<300", "301-500", "501-700", "701+"))
+levels(gognmNA$tekjurEigin) <- c("<300", "<300", "301-500", "501-700", "701+", "701+", "Cant/wont answer")
+
+
+gognmNA$binary_trait<- as.numeric(as.character(gognmNA$binary_trait))
+
+
+
+gognmNA<-gognmNA %>% select_all() %>% filter(agecalculated < 70) 
+
+
+
+new_DF<-af_saga_id[,c(1,139:150)]
+new_DF <- new_DF[rowSums(is.na(new_DF)) > 0,]
+
+
+
+new_DF<-merge(x=new_DF,y=gognmNA,by="pin",all.x=TRUE)
+new_DF<-droplevels(na_if(new_DF, "Unknown"))
+new_DF<- new_DF[!rowSums(is.na(new_DF))>33,]
+
+new_DF$LEC_to_me_or_witness<-(na_if(new_DF$LEC_to_me_or_witness, 0))
+
+
+
+new_DF<-new_DF[,c(1,14:37)]
+
+gognmNA<-anti_join(gognmNA, new_DF, by = "pin")
+
+gognmNA<-rbind(gognmNA, new_DF)
+
+vu<-gognmNA
+
+vijjj<-droplevels(na_if(vu, "Cant/wont answer"))
+
+```
+
+
+
+```{r}
+
+
+gusgus<-vu
+
+# gusgus<-vu[rowSums(is.na(vu))>0 & rowSums(is.na(vu)) < 2 ,]
+# 
+# gognmismun<-vijjj[!rowSums(is.na(vijjj))>0 & !rowSums(is.na(vijjj)) < 2 ,]
+# 
+
+
+new_DF <- vijjj[rowSums(is.na(vijjj))>7 & rowSums(is.na(vijjj)) < 25,]
+```
+
+
+```{r}
+#new_DF$binary_trait<-as.factor(new_DF$binary_trait)
+#library(tableone)
+#CreateTableOne(data=new_DF, vars=c("agecalculated", "menntun2", "tekjurEigin", "deprivation", "ACE_f_total_cat", "binary_trait"), includeNA=TRUE )
+```
+
+
+
+
+```{r}
+# gusgus$deprivation[is.na(gusgus$deprivation)] <- "Rarely"
+# gusgus$worstTrauma_freq[is.na(gusgus$worstTrauma_freq)] <- "No listed trauma"
+# gusgus$reyk[is.na(gusgus$reyk)] <- "Never"
+# gusgus$audit3[is.na(gusgus$audit3)] <- "Never"
+
+gusgus<-right_join(gusgus, new_DF, by="pin",suffix=c("", ".y"))
+gusgus<-gusgus[,c(1:25)]
+gussigus<-gusgus
+v1<-c(colSums((is.na(gusgus))))
+v3<-c(colSums(gusgus=="Cant/wont answer", na.rm=TRUE))
+
+```
+
+
+
+```{r}
+library(reshape)
+library(reshape2)
+vigur4<-colnames(gogn)
+
+bubu<-data.frame(v1,v3)
+bubu<-cbind(bubu, vigur4)
+colnames(bubu)<- c("NAs", "Cant/wont answer", "names")
+#rownames(bubu)<- colnames(gognmNA)
+
+
+bubu[bubu == 0] <- NA
+
+bubu$names <- factor(bubu$names,                                    # Change ordering manually
+                  levels = c("pin","agecalculated", "innflytNordurlond", "husHeilbrigdisumd", "fjolSamband2", "menntun2", "tekjurEigin", "stadaNuverandi2", "vinnutimi", "PSQI_imputed_SQ", "PSQIA_row_imputed_total", "deprivation", "ACE_f_total_cat", "LEC_to_me_or_witness", "worstTrauma_freq", "PCL_row_imputed_total", "binary_trait", "GAD7_row_imputed_total", "PHQ9_row_imputed_total", "BMI", "PHQ15_total", "PMS_row_imputed_total", "fjoldiBarna", "reyk", "audit3"))
+levels(bubu$names) <- c("Pin", "Age", "Born Nordic", "Residence", "Cohabitation", "Education", "Income", "Working status", "Working hours", "PSQI", "PSQIA", "Deprivation", "ACE", "LEC", "Worst Trauma", "PCL", "Coping ability", "GAD7", "PHQ9", "BMI", "PHQ15", "PMS", "Number of children", "Smoking", "Binge drinking")
+data_long_PB <- melt(bubu, id = "names")
+data_long_PB$names<-as.factor(data_long_PB$names)
+#data_long_PB$mis<-mis
+```
+
+
+
+```{r}
+mycolors<-c("lightskyblue", "lightsalmon")
+dplot <- ggplot(data_long_PB, aes(x=(names), y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+
+dplot + geom_col() + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left") +theme_bw()+ theme(axis.text.x = element_text(family="LLB",angle = 90, vjust = 0.5, hjust=1))+geom_text(family="LLB",size=5,angle=90,aes(label=value), position = position_stack(vjust = 0.75))+scale_fill_manual(values=mycolors, name = "Missing type")+ ggtitle(" NAs=1, N=3053")+ theme(text = element_text(family="LLB",size = 15))
+```
+
+
+
+
+
+
+```{r}
+
+gusgus<-vu
+
+#gusgus<-vu[rowSums(is.na(vu)) >=0 ,]
+gussigus<-gusgus
+gognmismun<-vu[!rowSums(is.na(vu)) >0,]
+
+
+gusgus<-vu[which(colSums(rowSums(is.na(vu)) +  rowSums(vu=="Cant/wont answer"))<2),]
+```
+
+
+```{r}
+
+
+v1<-c(colSums(is.na(gusgus)))
+#v3 <- c(0,0,72,0,174,138,1254,224,224,106,0,0,197,169,934,0,0,0,0,0,0,0,0,0,0)
+
+#v4<-c(0,0,0,54,0,0,0,0,0,676,3548,3399,3370,3423,1987,3304,1949,3239,3316,4268,748,2253,399,978,2506)
+v3<-c(colSums(gusgus=="Cant/wont answer"))
+v3
+v4
+```
+
+
+
+```{r}
+library(reshape)
+library(reshape2)
+vigur4<-colnames(gogn)
+
+bubu<-data.frame(v4,v3)
+bubu<-cbind(bubu, vigur4)
+colnames(bubu)<- c("NAs", "Cant/wont answer", "names")
+#rownames(bubu)<- colnames(gognmNA)
+
+
+bubu[bubu == 0] <- NA
+
+bubu$names <- factor(bubu$names,                                    # Change ordering manually
+                  levels = c("pin","agecalculated", "innflytNordurlond", "husHeilbrigdisumd", "fjolSamband2", "menntun2", "tekjurEigin", "stadaNuverandi2", "vinnutimi", "PSQI_imputed_SQ", "PSQIA_row_imputed_total", "deprivation", "ACE_f_total_cat", "LEC_to_me_or_witness", "worstTrauma_freq", "PCL_row_imputed_total", "binary_trait", "GAD7_row_imputed_total", "PHQ9_row_imputed_total", "BMI", "PHQ15_total", "PMS_row_imputed_total", "fjoldiBarna", "reyk", "audit3"))
+levels(bubu$names) <- c("Pin", "Age", "Born Nordic", "Residence", "Cohabitation", "Education", "Income", "Working status", "Working hours", "PSQI", "PSQIA", "Deprivation", "ACE", "LEC", "Worst Trauma", "PCL", "Coping ability", "GAD7", "PHQ9", "BMI", "PHQ15", "PMS", "Number of children", "Smoking", "Binge drinking")
+data_long_PB <- melt(bubu, id = "names")
+data_long_PB$names<-as.factor(data_long_PB$names)
+#data_long_PB$mis<-mis
+```
+
+
+
+```{r}
+mycolors<-c("lightskyblue", "lightsalmon")
+dplot <- ggplot(data_long_PB, aes(x=(names), y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+
+dplot + geom_col() + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left") +theme_bw()+ theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+geom_text(size=4,angle=90,aes(label=value), position = position_stack(vjust = 0.75))+scale_fill_manual(values=mycolors, name = "Missing type")+ ggtitle("Count of missing after variable,NAs>7 - N=2938")+ theme(text = element_text(size = 13))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######### Gurra plot
+
+
+
+
+
+
+```{r}
+Bera_saman_PB<-rbind(gurri_1000r/5, gurri_5000r/5, gurri_10000r/5, gurri_15000r/5, gurri_20000r/5)
+```
+
+```{r}
+staerd<-c(1000, 5000, 10000, 15000, 20000)
+Bera_saman_PB_minni<-Bera_saman_PB
+Bera_saman_PB_minni$staerd<-staerd
+```
+
+
+```{r}
+data_long <- melt(Bera_saman_PB_minni, id = "staerd")
+colnames(data_long)<-c("staerd", "Method", "value")
+levels(data_long$Method)<- c("CCA","MI-PMM", "MI-MICE", "SI-PMM")
+```
+
+
+
+```{r}
+mycolors <- c("cornflowerblue", "brown1", "darkseagreen", "orange1", "slateblue1")
+jpeg("PB_sample_size.jpeg", quality = 100)
+
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = staerd,
+                   y = value,
+                   color = Method)) +  geom_line(size=1.1)+ scale_x_continuous(breaks = c( 1000, 5000, 10000,15000, 20000))+xlab("Sample size")+ylab("")+ggtitle("Mean Percentage Bias")+ geom_hline(yintercept=5, linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text(family="LLB",size = 17))+ 
+    coord_cartesian(ylim=c(0, 30))+annotate("text", x=6100, y=30, label= "137.05", color="cornflowerblue")+scale_color_manual(values=mycolors)+theme(legend.position = "none")
+gfg_plot2
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
