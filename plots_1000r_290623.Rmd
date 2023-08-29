@@ -1,0 +1,2377 @@
+---
+title: "Plots_1000r"
+author: "Marín Dögg Bjarnadóttir"
+date: '2023-01-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(rstudio.help.showDataPreview = FALSE)
+
+```
+
+```{r}
+library(reshape)
+windowsFonts(
+  LLB=windowsFont("lmroman10-bold")
+)
+mycolors <- c("cornflowerblue", "brown1", "darkseagreen", "orange1", "slateblue1")
+library(ggplot2)
+```
+
+
+```{r}
+fit_CC<-geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ 
+                 agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)
+               +factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=as.factor(pin), data=gognDNA1000r_rett)
+fit_CC_tidy<-tidy(fit_CC, exp=TRUE, conf.int = TRUE)
+```
+
+```{r}
+rett<-exp(fit_CC$coefficients)
+```
+
+### R2
+
+```{r}
+Y_bar = mean(fit_CC$y, na.rm = T)
+R2gildi_rett<- 1-(sum(fit_CC$weights * (fit_CC$y - fit_CC$fitted.values)^2, na.rm = T)/sum(fit_CC$weights*(fit_CC$y - Y_bar)^2, na.rm = T))
+```
+
+
+
+
+## Regression coefficents
+
+
+
+
+
+
+
+
+### Intercept
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[1], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[1,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[1,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[1,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[1,]))
+```
+
+
+```{r}
+Lmis<-c(0.05,0.10,0.25,0.50,0.75)
+gogn_ampute_reg_intercept<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_intercept, id = "Lmis")
+jpeg("1000r_reg_coef_1.jpeg", quality = 100)
+gfg_plot1 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Intercept")+ geom_hline(yintercept=fit_CC_tidy$conf.low[1], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") +  theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[1], linetype="dashed", color = "red") +
+  scale_color_manual(values=mycolors)
+gfg_plot1
+dev.off()
+```
+
+
+
+### ACE1
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[2], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[2,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[2,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[2,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[2,]))
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE1<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE1, id = "Lmis")
+jpeg("1000r_reg_coef_2.jpeg", quality = 100)
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_1")+ geom_hline(yintercept=fit_CC_tidy$conf.low[2], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") +  theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[2], linetype="dashed", color = "red")
+gfg_plot2+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE2
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[3], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[3,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[3,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[3,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[3,]))
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE2, id = "Lmis")
+jpeg("1000r_reg_coef_3.jpeg", quality = 100)
+gfg_plot3 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_2")+ geom_hline(yintercept=fit_CC_tidy$conf.low[3], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") +  theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[3], linetype="dashed", color = "red")
+gfg_plot3+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE3-4
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[4], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[4,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[4,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[4,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[4,]))
+
+
+```
+
+
+```{r}
+gogn_ampute_reg_ACE3<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE3, id = "Lmis")
+jpeg("1000r_reg_coef_4.jpeg", quality = 100)
+gfg_plot4 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_3-4")+ geom_hline(yintercept=fit_CC_tidy$conf.low[4], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")+   theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[4], linetype="dashed", color = "red")
+gfg_plot4+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE5+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[5], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[5,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[5,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[5,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[5,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_ACE4<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE4, id = "Lmis")
+jpeg("1000r_reg_coef_5.jpeg", quality = 100)
+gfg_plot5 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_5+")+ geom_hline(yintercept=fit_CC_tidy$conf.low[5], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[5], linetype="dashed", color = "red")
+gfg_plot5+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+### agecalculated
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[6], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[6,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[6,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[6,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[6,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_age<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_age, id = "Lmis")
+jpeg("1000r_reg_coef_6.jpeg", quality = 100)
+gfg_plot6 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Age")+ geom_hline(yintercept=fit_CC_tidy$conf.low[6], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") +  theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[6], linetype="dashed", color = "red")
+gfg_plot6+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### deprivation yes
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[7], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[7,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[7,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[7,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[7,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depR<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depR, id = "Lmis")
+jpeg("1000r_reg_coef_7.jpeg", quality = 100)
+gfg_plot7 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Deprivation - Yes")+ geom_hline(yintercept=fit_CC_tidy$conf.low[7], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=fit_CC_tidy$conf.high[7], linetype="dashed", color = "red")
+gfg_plot7+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun secondary
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[8], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[8,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[8,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[8,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[8,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depS<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depS, id = "Lmis")
+jpeg("1000r_reg_coef_8.jpeg", quality = 100)
+gfg_plot8 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - Secondary")+ geom_hline(yintercept=fit_CC_tidy$conf.low[8], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+  theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[8], linetype="dashed", color = "red")
+gfg_plot8+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### menntun2 Tertiary A
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[9], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[9,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[9,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[9,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[9,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depO<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depO, id = "Lmis")
+jpeg("1000r_reg_coef_9.jpeg", quality = 100)
+gfg_plot9 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryA")+ geom_hline(yintercept=fit_CC_tidy$conf.low[9], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=fit_CC_tidy$conf.high[9], linetype="dashed", color = "red")
+gfg_plot9+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun2 Tertiary B
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[10], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[10,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[10,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[10,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[10,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menS<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menS, id = "Lmis")
+jpeg("1000r_reg_coef_10.jpeg", quality = 100)
+gfg_plot10 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryB")+ geom_hline(yintercept=fit_CC_tidy$conf.low[10], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=fit_CC_tidy$conf.high[10], linetype="dashed", color = "red")+
+  scale_color_manual(values=mycolors)
+gfg_plot10
+dev.off()
+```
+
+
+
+### TekjurEigin 301-500
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[11], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[11,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[11,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[11,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[11,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menTA<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTA, id = "Lmis")
+jpeg("1000r_reg_coef_11.jpeg", quality = 100)
+gfg_plot11 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 301-500")+ geom_hline(yintercept=fit_CC_tidy$conf.low[11], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=fit_CC_tidy$conf.high[11], linetype="dashed", color = "red")
+gfg_plot11+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### tekjurEigin 501-700
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[12], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[12,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[12,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[12,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[12,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menTB<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTB, id = "Lmis")
+jpeg("1000r_reg_coef_12.jpeg", quality = 100)
+gfg_plot12 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 501-700")+ geom_hline(yintercept=fit_CC_tidy$conf.low[12], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=fit_CC_tidy$conf.high[12], linetype="dashed", color = "red")
+gfg_plot12+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### tekjurEigin 700+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[13], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[13,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[13,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[13,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[13,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_tE1<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE1, id = "Lmis")
+jpeg("1000r_reg_coef_13.jpeg", quality = 100)
+gfg_plot13 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 700+")+ geom_hline(yintercept=fit_CC_tidy$conf.low[13], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")+ geom_hline(yintercept=fit_CC_tidy$conf.high[13], linetype="dashed", color = "red")
+gfg_plot13+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### fjolsamband - single or widowed
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[14], 5)
+CC<-c(t(beraSamanRegCoef_CC_1000r[14,]))
+PMM<-c(t(beraSamanRegCoef_PMM_1000r[14,]))
+MICE<-c(t(beraSamanRegCoef_MICE_1000r[14,]))
+SI<-c(t(beraSamanRegCoef_SI_1000r[14,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_tE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE2, id = "Lmis")
+jpeg("1000r_reg_coef_14.jpeg", quality = 100)
+gfg_plot14 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Cohabitation - Single or widowed")+ geom_hline(yintercept=fit_CC_tidy$conf.low[14], linetype="dashed", color = "red")+ geom_hline(yintercept=fit_CC_tidy$conf.high[14], linetype="dashed", color = "red")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot14+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+
+```{r}
+gridExtra::grid.arrange(gfg_plot1,gfg_plot2,gfg_plot3,gfg_plot4,gfg_plot5,gfg_plot6,gfg_plot7,gfg_plot8,gfg_plot9,nrow=3)
+```
+
+
+
+
+```{r}
+gridExtra::grid.arrange(gfg_plot10,gfg_plot11,gfg_plot12,gfg_plot13,gfg_plot14,gfg_plot7,gfg_plot8,gfg_plot9,nrow=3)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Standard error
+
+
+
+
+
+### Intercept
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[1], 5)
+CC<-c(t(beraSamanSE_CC_1000r[1,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[1,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[1,]))
+SI<-c(t(beraSamanSE_SI_1000r[1,]))
+```
+
+
+```{r}
+Lmis<-c(0.05,0.10,0.25,0.50,0.75)
+gogn_ampute_reg_intercept<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_intercept, id = "Lmis")
+jpeg("1000r_SE_1.jpeg", quality = 100)
+gfg_plot1 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Intercept")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot1+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE1
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[2], 5)
+CC<-c(t(beraSamanSE_CC_1000r[2,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[2,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[2,]))
+SI<-c(t(beraSamanSE_SI_1000r[2,]))
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE1<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE1, id = "Lmis")
+jpeg("1000r_SE_2.jpeg", quality = 100)
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_1")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot2+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE2
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[3], 5)
+CC<-c(t(beraSamanSE_CC_1000r[3,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[3,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[3,]))
+SI<-c(t(beraSamanSE_SI_1000r[3,]))
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE2, id = "Lmis")
+jpeg("1000r_SE_3.jpeg", quality = 100)
+gfg_plot3 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_2")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot3+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE3-4
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[4], 5)
+CC<-c(t(beraSamanSE_CC_1000r[4,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[4,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[4,]))
+SI<-c(t(beraSamanSE_SI_1000r[4,]))
+
+
+```
+
+
+```{r}
+gogn_ampute_reg_ACE3<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE3, id = "Lmis")
+jpeg("1000r_SE_4.jpeg", quality = 100)
+gfg_plot4 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_3-4")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot4+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE5+
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[5], 5)
+CC<-c(t(beraSamanSE_CC_1000r[5,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[5,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[5,]))
+SI<-c(t(beraSamanSE_SI_1000r[5,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_ACE4<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE4, id = "Lmis")
+jpeg("1000r_SE_5.jpeg", quality = 100)
+gfg_plot5 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_5+")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot5+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+### agecalculated
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[6], 5)
+CC<-c(t(beraSamanSE_CC_1000r[6,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[6,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[6,]))
+SI<-c(t(beraSamanSE_SI_1000r[6,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_age<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_age, id = "Lmis")
+jpeg("1000r_SE_6.jpeg", quality = 100)
+gfg_plot6 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Age")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot6+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### deprivation yes
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[7], 5)
+CC<-c(t(beraSamanSE_CC_1000r[7,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[7,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[7,]))
+SI<-c(t(beraSamanSE_SI_1000r[7,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depR<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depR, id = "Lmis")
+jpeg("1000r_SE_7.jpeg", quality = 100)
+gfg_plot7 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Deprivation - Yes")+ theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot7+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun secondary
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[8], 5)
+CC<-c(t(beraSamanSE_CC_1000r[8,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[8,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[8,]))
+SI<-c(t(beraSamanSE_SI_1000r[8,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depS<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depS, id = "Lmis")
+jpeg("1000r_SE_8.jpeg", quality = 100)
+gfg_plot8 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - Secondary")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot8+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### menntun2 Tertiary A
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[9], 5)
+CC<-c(t(beraSamanSE_CC_1000r[9,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[9,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[9,]))
+SI<-c(t(beraSamanSE_SI_1000r[9,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depO<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depO, id = "Lmis")
+jpeg("1000r_SE_9.jpeg", quality = 100)
+gfg_plot9 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryA")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot9+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun2 Tertiary B
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[10], 5)
+CC<-c(t(beraSamanSE_CC_1000r[10,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[10,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[10,]))
+SI<-c(t(beraSamanSE_SI_1000r[10,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menS<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menS, id = "Lmis")
+jpeg("1000r_SE_10.jpeg", quality = 100)
+gfg_plot10 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryB")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot10+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### TekjurEigin 301-500
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[11], 5)
+CC<-c(t(beraSamanSE_CC_1000r[11,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[11,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[11,]))
+SI<-c(t(beraSamanSE_SI_1000r[11,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menTA<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTA, id = "Lmis")
+jpeg("1000r_SE_11.jpeg", quality = 100)
+gfg_plot11 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 301-500")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot11+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### tekjurEigin 501-700
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[12], 5)
+CC<-c(t(beraSamanSE_CC_1000r[12,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[12,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[12,]))
+SI<-c(t(beraSamanSE_SI_1000r[12,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menTB<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTB, id = "Lmis")
+jpeg("1000r_SE_12.jpeg", quality = 100)
+gfg_plot12 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 501-700")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot12+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### tekjurEigin 700+
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[13], 5)
+CC<-c(t(beraSamanSE_CC_1000r[13,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[13,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[13,]))
+SI<-c(t(beraSamanSE_SI_1000r[13,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_tE1<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE1, id = "Lmis")
+jpeg("1000r_SE_13.jpeg", quality = 100)
+gfg_plot13 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 700+")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot13+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### fjolsamband - single or widowed
+
+
+```{r}
+True<- rep(fit_CC_tidy$std.error[14], 5)
+CC<-c(t(beraSamanSE_CC_1000r[14,]))
+PMM<-c(t(beraSamanSE_PMM_1000r[14,]))
+MICE<-c(t(beraSamanSE_MICE_1000r[14,]))
+SI<-c(t(beraSamanSE_SI_1000r[14,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_tE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE2, id = "Lmis")
+jpeg("1000r_SE_14.jpeg", quality = 100)
+gfg_plot14 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Cohabitation - Single or widowed")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot14+scale_color_manual(values=mycolors)
+dev.off()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## p-values
+
+
+
+
+
+### Intercept
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[1], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[1,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[1,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[1,]))
+SI<-c(t(beraSamanP_val_SI_1000r[1,]))
+```
+
+
+```{r}
+Lmis<-c(0.05,0.10,0.25,0.50,0.75)
+gogn_ampute_reg_intercept<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_intercept, id = "Lmis")
+jpeg("1000r_p_1.jpeg", quality = 100)
+gfg_plot1 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Intercept")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")+ geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot1+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE1
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[2], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[2,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[2,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[2,]))
+SI<-c(t(beraSamanP_val_SI_1000r[2,]))
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE1<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE1, id = "Lmis")
+jpeg("1000r_p_2.jpeg", quality = 100)
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_1")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot2+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE2
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[3], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[3,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[3,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[3,]))
+SI<-c(t(beraSamanP_val_SI_1000r[3,]))
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE2, id = "Lmis")
+jpeg("1000r_p_3.jpeg", quality = 100)
+gfg_plot3 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_2")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")+ geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot3+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE3-4
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[4], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[4,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[4,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[4,]))
+SI<-c(t(beraSamanP_val_SI_1000r[4,]))
+
+
+```
+
+
+```{r}
+gogn_ampute_reg_ACE3<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE3, id = "Lmis")
+jpeg("1000r_p_4.jpeg", quality = 100)
+gfg_plot4 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_3-4")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot4+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE5+
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[5], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[5,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[5,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[5,]))
+SI<-c(t(beraSamanP_val_SI_1000r[5,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_ACE4<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE4, id = "Lmis")
+jpeg("1000r_p_5.jpeg", quality = 100)
+gfg_plot5 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_5+")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot5+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+### agecalculated
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[6], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[6,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[6,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[6,]))
+SI<-c(t(beraSamanP_val_SI_1000r[6,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_age<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_age, id = "Lmis")
+jpeg("1000r_p_6.jpeg", quality = 100)
+gfg_plot6 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Age")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot6+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### deprivation yes
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[7], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[7,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[7,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[7,]))
+SI<-c(t(beraSamanP_val_SI_1000r[7,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depR<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depR, id = "Lmis")
+jpeg("1000r_p_7.jpeg", quality = 100)
+gfg_plot7 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Deprivation - Yes")+ theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot7+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun secondary
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[8], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[8,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[8,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[8,]))
+SI<-c(t(beraSamanP_val_SI_1000r[8,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depS<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depS, id = "Lmis")
+jpeg("1000r_p_8.jpeg", quality = 100)
+gfg_plot8 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - Secondary")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot8+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### menntun2 Tertiary A
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[9], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[9,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[9,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[9,]))
+SI<-c(t(beraSamanP_val_SI_1000r[9,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_depO<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depO, id = "Lmis")
+jpeg("1000r_p_9.jpeg", quality = 100)
+gfg_plot9 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryA")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot9+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun2 Tertiary B
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[10], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[10,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[10,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[10,]))
+SI<-c(t(beraSamanP_val_SI_1000r[10,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menS<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menS, id = "Lmis")
+jpeg("1000r_p_10.jpeg", quality = 100)
+gfg_plot10 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryB")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot10+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### TekjurEigin 301-500
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[11], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[11,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[11,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[11,]))
+SI<-c(t(beraSamanP_val_SI_1000r[11,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menTA<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTA, id = "Lmis")
+jpeg("1000r_p_11.jpeg", quality = 100)
+gfg_plot11 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 301-500")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot11+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### tekjurEigin 501-700
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[12], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[12,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[12,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[12,]))
+SI<-c(t(beraSamanP_val_SI_1000r[12,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_menTB<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTB, id = "Lmis")
+jpeg("1000r_p_12.jpeg", quality = 100)
+gfg_plot12 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 501-700")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot12+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### tekjurEigin 700+
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[13], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[13,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[13,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[13,]))
+SI<-c(t(beraSamanP_val_SI_1000r[13,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_tE1<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE1, id = "Lmis")
+jpeg("1000r_p_13.jpeg", quality = 100)
+gfg_plot13 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 700+")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot13+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### fjolsamband - single or widowed
+
+
+```{r}
+True<- rep(fit_CC_tidy$p.value[14], 5)
+CC<-c(t(beraSamanP_val_CC_1000r[14,]))
+PMM<-c(t(beraSamanP_val_PMM_1000r[14,]))
+MICE<-c(t(beraSamanP_val_MICE_1000r[14,]))
+SI<-c(t(beraSamanP_val_SI_1000r[14,]))
+
+```
+
+
+```{r}
+gogn_ampute_reg_tE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE2, id = "Lmis")
+jpeg("1000r_p_14.jpeg", quality = 100)
+gfg_plot14 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Cohabitation - Single or widowed")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=0.05, linetype="dashed", color = "red")
+gfg_plot14+scale_color_manual(values=mycolors)
+dev.off()
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# PB
+
+
+
+
+### PMM
+
+```{r}
+coef<-14
+PMM05<-huhu_PMM_1000r_1$PB
+PMM05_sums<-sum(PMM05)/coef
+
+PMM10<-huhu_PMM_1000r_2$PB
+PMM10_sums<-sum(PMM10)/coef
+
+PMM25<-huhu_PMM_1000r_3$PB
+PMM25_sums<-sum(PMM25)/coef
+
+PMM50<-huhu_PMM_1000r_4$PB
+PMM50_sums<-sum(PMM50)/coef
+
+PMM75<-huhu_PMM_1000r_5$PB
+PMM75_sums<-sum(PMM75)/coef
+
+PMM_vector<-c(PMM05_sums,PMM10_sums,PMM25_sums,PMM50_sums,PMM75_sums)
+
+PMM_total_sums<-PMM05_sums+PMM10_sums+PMM25_sums+PMM50_sums+PMM75_sums
+```
+
+
+
+
+### MICE
+
+```{r}
+MICE05<-huhu_MICE_1000r_1$PB
+MICE05_sums<-sum(MICE05)/coef
+
+MICE10<-huhu_MICE_1000r_2$PB
+MICE10_sums<-sum(MICE10)/coef
+
+MICE25<-huhu_MICE_1000r_3$PB
+MICE25_sums<-sum(MICE25)/coef
+
+MICE50<-huhu_MICE_1000r_4$PB
+MICE50_sums<-sum(MICE50)/coef
+
+MICE75<-huhu_MICE_1000r_5$PB
+MICE75_sums<-sum(MICE75)/coef
+
+MICE_vector<-c(MICE05_sums,MICE10_sums,MICE25_sums,MICE50_sums,MICE75_sums)
+
+MICE_total_sums<-MICE05_sums+MICE10_sums+MICE25_sums+MICE50_sums+MICE75_sums
+```
+
+
+
+
+### SI
+
+```{r}
+SI05<-huhu_SI_1000r_1$PB
+SI05_sums<-sum(SI05)/coef
+
+SI10<-huhu_SI_1000r_2$PB
+SI10_sums<-sum(SI10)/coef
+
+SI25<-huhu_SI_1000r_3$PB
+SI25_sums<-sum(SI25)/coef
+
+SI50<-huhu_SI_1000r_4$PB
+SI50_sums<-sum(SI50)/coef
+
+SI75<-huhu_SI_1000r_5$PB
+SI75_sums<-sum(SI75)/coef
+
+SI_vector<-c(SI05_sums,SI10_sums,SI25_sums,SI50_sums,SI75_sums)
+
+SI_total_sums<-SI05_sums+SI10_sums+SI25_sums+SI50_sums+SI75_sums
+```
+
+
+
+
+### CC
+
+```{r}
+CC05<-huhu_CC_1000r_1$PB
+CC05_sums<-sum(CC05)/coef
+
+CC10<-huhu_CC_1000r_2$PB
+CC10_sums<-sum(CC10)/coef
+
+CC25<-huhu_CC_1000r_3$PB
+CC25_sums<-sum(CC25)/coef
+
+CC50<-huhu_CC_1000r_4$PB
+CC50_sums<-sum(CC50)/coef
+
+CC75<-huhu_CC_1000r_5$PB
+CC75_sums<-sum(CC75)/coef
+
+CC_vector<-c(CC05_sums,CC10_sums,CC25_sums,CC50_sums,CC75_sums)
+CC_total_sums<-CC05_sums+CC10_sums+CC25_sums+CC50_sums+CC75_sums
+```
+
+
+```{r}
+gurri_1000r<-data.frame(CC_total_sums,
+PMM_total_sums,
+MICE_total_sums,
+SI_total_sums)
+#save(gurri_1000r, file="gurri_1000r")
+```
+
+
+
+
+```{r}
+Lmis<-c(0.05,0.10,0.25,0.50,0.75)
+```
+
+
+
+
+
+```{r}
+gogn_f_plot<-data.frame(Lmis,CC_vector, PMM_vector, MICE_vector, SI_vector)
+```
+
+
+```{r}
+data_long <- melt(gogn_f_plot, id = "Lmis")
+jpeg("1000r_Mean_PB.jpeg", quality = 100)
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Mean Percentage Bias")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+ geom_hline(yintercept=5, linetype="dashed", color = "red")+theme(legend.position = "none")+
+  scale_color_manual(values=mycolors)
+gfg_plot2
+dev.off()
+```
+
+
+
+### PMM
+
+```{r}
+PMM05<-huhu_PMM_1000r_1$CR
+PMM05_sums<-sum(PMM05)/coef
+
+PMM10<-huhu_PMM_1000r_2$CR
+PMM10_sums<-sum(PMM10)/coef
+
+PMM25<-huhu_PMM_1000r_3$CR
+PMM25_sums<-sum(PMM25)/coef
+
+PMM50<-huhu_PMM_1000r_4$CR
+PMM50_sums<-sum(PMM50)/coef
+
+PMM75<-huhu_PMM_1000r_5$CR
+PMM75_sums<-sum(PMM75)/coef
+
+PMM_vector<-c(PMM05_sums,PMM10_sums,PMM25_sums,PMM50_sums,PMM75_sums)
+
+PMM_total_sums<-PMM05_sums+PMM10_sums+PMM25_sums+PMM50_sums+PMM75_sums
+```
+
+
+
+
+
+### MICE
+
+```{r}
+MICE05<-huhu_MICE_1000r_1$CR
+MICE05_sums<-sum(MICE05)/coef
+
+MICE10<-huhu_MICE_1000r_2$CR
+MICE10_sums<-sum(MICE10)/coef
+
+MICE25<-huhu_MICE_1000r_3$CR
+MICE25_sums<-sum(MICE25)/coef
+
+MICE50<-huhu_MICE_1000r_4$CR
+MICE50_sums<-sum(MICE50)/coef
+
+MICE75<-huhu_MICE_1000r_5$CR
+MICE75_sums<-sum(MICE75)/coef
+
+MICE_vector<-c(MICE05_sums,MICE10_sums,MICE25_sums,MICE50_sums,MICE75_sums)
+
+MICE_total_sums<-MICE05_sums+MICE10_sums+MICE25_sums+MICE50_sums+MICE75_sums
+```
+
+
+
+
+### SI
+
+```{r}
+SI05<-huhu_SI_1000r_1$CR
+SI05_sums<-sum(SI05)/coef
+
+SI10<-huhu_SI_1000r_2$CR
+SI10_sums<-sum(SI10)/coef
+
+SI25<-huhu_SI_1000r_3$CR
+SI25_sums<-sum(SI25)/coef
+
+SI50<-huhu_SI_1000r_4$CR
+SI50_sums<-sum(SI50)/coef
+
+SI75<-huhu_SI_1000r_5$CR
+SI75_sums<-sum(SI75)/coef
+
+SI_vector<-c(SI05_sums,SI10_sums,SI25_sums,SI50_sums,SI75_sums)
+
+SI_total_sums<-SI05_sums+SI10_sums+SI25_sums+SI50_sums+SI75_sums
+```
+
+
+
+### CC
+
+```{r}
+CC05<-huhu_CC_1000r_1$CR
+CC05_sums<-sum(CC05)/coef
+
+CC10<-huhu_CC_1000r_2$CR
+CC10_sums<-sum(CC10)/coef
+
+CC25<-huhu_CC_1000r_3$CR
+CC25_sums<-sum(CC25)/coef
+
+CC50<-huhu_CC_1000r_4$CR
+CC50_sums<-sum(CC50)/coef
+
+CC75<-huhu_CC_1000r_5$CR
+CC75_sums<-sum(CC75)/coef
+
+CC_vector<-c(CC05_sums,CC10_sums,CC25_sums,CC50_sums,CC75_sums)
+
+CC_total_sums<-CC05_sums+CC10_sums+CC25_sums+CC50_sums+CC75_sums
+```
+
+
+
+
+
+```{r}
+Lmis<-c(0.05,0.10,0.25,0.50,0.75)
+```
+
+
+
+
+
+```{r}
+gogn_f_plot<-data.frame(Lmis,CC_vector, PMM_vector, MICE_vector, SI_vector)
+```
+
+
+```{r}
+data_long <- melt(gogn_f_plot, id = "Lmis")
+jpeg("1000r_Cov.jpeg", quality = 100)
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("Level of missingness")+ylab("Mean CR")+ggtitle("Mean CR of coefficients on gognDNA -1000r")+ theme(text = element_text( family="LLB",size = 20))+scale_color_manual(values=mycolors)
+gfg_plot2
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## PB-bias
+
+
+
+
+
+
+### An legends
+
+
+
+
+
+### Intercept
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[1], 5)
+CC<-c(huhu_CC_1000r_1$PB[1],huhu_CC_1000r_2$PB[1],huhu_CC_1000r_3$PB[1],huhu_CC_1000r_4$PB[1],huhu_CC_1000r_5$PB[1])
+PMM<-c(huhu_PMM_1000r_1$PB[1],huhu_PMM_1000r_2$PB[1],huhu_PMM_1000r_3$PB[1],huhu_PMM_1000r_4$PB[1],huhu_PMM_1000r_5$PB[1])
+MICE<-c(huhu_MICE_1000r_1$PB[1],huhu_MICE_1000r_2$PB[1],huhu_MICE_1000r_3$PB[1],huhu_MICE_1000r_4$PB[1],huhu_MICE_1000r_5$PB[1])
+SI<-c(huhu_SI_1000r_1$PB[1],huhu_SI_1000r_2$PB[1],huhu_SI_1000r_3$PB[1],huhu_SI_1000r_4$PB[1],huhu_SI_1000r_5$PB[1])
+```
+
+
+```{r}
+Lmis<-c(0.05,0.10,0.25,0.50,0.75)
+gogn_ampute_reg_intercept<-data.frame(Lmis,(CC), (PMM), (MICE), (SI))
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_intercept, id = "Lmis")
+jpeg("1000r_PB_1.jpeg", quality = 100)
+gfg_plot1 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Intercept")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=5, linetype="dashed", color = "red")
+gfg_plot1+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE1
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[2], 5)
+CC<-c(huhu_CC_1000r_1$PB[2],huhu_CC_1000r_2$PB[2],huhu_CC_1000r_3$PB[2],huhu_CC_1000r_4$PB[2],huhu_CC_1000r_5$PB[2])
+PMM<-c(huhu_PMM_1000r_1$PB[2],huhu_PMM_1000r_2$PB[2],huhu_PMM_1000r_3$PB[2],huhu_PMM_1000r_4$PB[2],huhu_PMM_1000r_5$PB[2])
+MICE<-c(huhu_MICE_1000r_1$PB[2],huhu_MICE_1000r_2$PB[2],huhu_MICE_1000r_3$PB[2],huhu_MICE_1000r_4$PB[2],huhu_MICE_1000r_5$PB[2])
+SI<-c(huhu_SI_1000r_1$PB[2],huhu_SI_1000r_2$PB[2],huhu_SI_1000r_3$PB[2],huhu_SI_1000r_4$PB[2],huhu_SI_1000r_5$PB[2])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_ACE1<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE1, id = "Lmis")
+jpeg("1000r_PB_2.jpeg", quality = 100)
+gfg_plot2 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_1")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=5, linetype="dashed", color = "red")
+gfg_plot2+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE2
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[3], 5)
+CC<-c(huhu_CC_1000r_1$PB[3],huhu_CC_1000r_2$PB[3],huhu_CC_1000r_3$PB[3],huhu_CC_1000r_4$PB[3],huhu_CC_1000r_5$PB[3])
+PMM<-c(huhu_PMM_1000r_1$PB[3],huhu_PMM_1000r_2$PB[3],huhu_PMM_1000r_3$PB[3],huhu_PMM_1000r_4$PB[3],huhu_PMM_1000r_5$PB[3])
+MICE<-c(huhu_MICE_1000r_1$PB[3],huhu_MICE_1000r_2$PB[3],huhu_MICE_1000r_3$PB[3],huhu_MICE_1000r_4$PB[3],huhu_MICE_1000r_5$PB[3])
+SI<-c(huhu_SI_1000r_1$PB[3],huhu_SI_1000r_2$PB[3],huhu_SI_1000r_3$PB[3],huhu_SI_1000r_4$PB[3],huhu_SI_1000r_5$PB[3])
+```
+
+
+
+```{r}
+gogn_ampute_reg_ACE2<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE2, id = "Lmis")
+jpeg("1000r_PB_3.jpeg", quality = 100)
+gfg_plot3 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_2")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=5, linetype="dashed", color = "red")
+gfg_plot3+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE3-4
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[4], 5)
+CC<-c(huhu_CC_1000r_1$PB[4],huhu_CC_1000r_2$PB[4],huhu_CC_1000r_3$PB[4],huhu_CC_1000r_4$PB[4],huhu_CC_1000r_5$PB[4])
+PMM<-c(huhu_PMM_1000r_1$PB[4],huhu_PMM_1000r_2$PB[4],huhu_PMM_1000r_3$PB[4],huhu_PMM_1000r_4$PB[4],huhu_PMM_1000r_5$PB[4])
+MICE<-c(huhu_MICE_1000r_1$PB[4],huhu_MICE_1000r_2$PB[4],huhu_MICE_1000r_3$PB[4],huhu_MICE_1000r_4$PB[4],huhu_MICE_1000r_5$PB[4])
+SI<-c(huhu_SI_1000r_1$PB[4],huhu_SI_1000r_2$PB[4],huhu_SI_1000r_3$PB[4],huhu_SI_1000r_4$PB[4],huhu_SI_1000r_5$PB[4])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_ACE3<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE3, id = "Lmis")
+jpeg("1000r_PB_4.jpeg", quality = 100)
+gfg_plot4 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_3-4")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") + geom_hline(yintercept=5, linetype="dashed", color = "red")
+gfg_plot4+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### ACE5+
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[5], 5)
+CC<-c(huhu_CC_1000r_1$PB[5],huhu_CC_1000r_2$PB[5],huhu_CC_1000r_3$PB[5],huhu_CC_1000r_4$PB[5],huhu_CC_1000r_5$PB[5])
+PMM<-c(huhu_PMM_1000r_1$PB[5],huhu_PMM_1000r_2$PB[5],huhu_PMM_1000r_3$PB[5],huhu_PMM_1000r_4$PB[5],huhu_PMM_1000r_5$PB[5])
+MICE<-c(huhu_MICE_1000r_1$PB[5],huhu_MICE_1000r_2$PB[5],huhu_MICE_1000r_3$PB[5],huhu_MICE_1000r_4$PB[5],huhu_MICE_1000r_5$PB[5])
+SI<-c(huhu_SI_1000r_1$PB[5],huhu_SI_1000r_2$PB[5],huhu_SI_1000r_3$PB[5],huhu_SI_1000r_4$PB[5],huhu_SI_1000r_5$PB[5])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_ACE4<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_ACE4, id = "Lmis")
+jpeg("1000r_PB_5.jpeg", quality = 100)
+gfg_plot5 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("ACE_5+")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=5, linetype="dashed", color = "red")
+gfg_plot5+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+### agecalculated
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[6], 5)
+CC<-c(huhu_CC_1000r_1$PB[6],huhu_CC_1000r_2$PB[6],huhu_CC_1000r_3$PB[6],huhu_CC_1000r_4$PB[6],huhu_CC_1000r_5$PB[6])
+PMM<-c(huhu_PMM_1000r_1$PB[6],huhu_PMM_1000r_2$PB[6],huhu_PMM_1000r_3$PB[6],huhu_PMM_1000r_4$PB[6],huhu_PMM_1000r_5$PB[6])
+MICE<-c(huhu_MICE_1000r_1$PB[6],huhu_MICE_1000r_2$PB[6],huhu_MICE_1000r_3$PB[6],huhu_MICE_1000r_4$PB[6],huhu_MICE_1000r_5$PB[6])
+SI<-c(huhu_SI_1000r_1$PB[6],huhu_SI_1000r_2$PB[6],huhu_SI_1000r_3$PB[6],huhu_SI_1000r_4$PB[6],huhu_SI_1000r_5$PB[6])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_age<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_age, id = "Lmis")
+jpeg("1000r_PB_6.jpeg", quality = 100)
+gfg_plot6 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Age")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")  + geom_hline(yintercept=5, linetype="dashed", color = "red")
+gfg_plot6+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### deprivation yes
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[7], 5)
+CC<-c(huhu_CC_1000r_1$PB[7],huhu_CC_1000r_2$PB[7],huhu_CC_1000r_3$PB[7],huhu_CC_1000r_4$PB[7],huhu_CC_1000r_5$PB[7])
+PMM<-c(huhu_PMM_1000r_1$PB[7],huhu_PMM_1000r_2$PB[7],huhu_PMM_1000r_3$PB[7],huhu_PMM_1000r_4$PB[7],huhu_PMM_1000r_5$PB[7])
+MICE<-c(huhu_MICE_1000r_1$PB[7],huhu_MICE_1000r_2$PB[7],huhu_MICE_1000r_3$PB[7],huhu_MICE_1000r_4$PB[7],huhu_MICE_1000r_5$PB[7])
+SI<-c(huhu_SI_1000r_1$PB[7],huhu_SI_1000r_2$PB[7],huhu_SI_1000r_3$PB[7],huhu_SI_1000r_4$PB[7],huhu_SI_1000r_5$PB[7])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_depR<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depR, id = "Lmis")
+jpeg("1000r_PB_7.jpeg", quality = 100)
+gfg_plot7 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Deprivation - Yes")+ theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot7+ geom_hline(yintercept=5, linetype="dashed", color = "red")+
+  scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun secondary
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[8], 5)
+CC<-c(huhu_CC_1000r_1$PB[8],huhu_CC_1000r_2$PB[8],huhu_CC_1000r_3$PB[8],huhu_CC_1000r_4$PB[8],huhu_CC_1000r_5$PB[8])
+PMM<-c(huhu_PMM_1000r_1$PB[8],huhu_PMM_1000r_2$PB[8],huhu_PMM_1000r_3$PB[8],huhu_PMM_1000r_4$PB[8],huhu_PMM_1000r_5$PB[8])
+MICE<-c(huhu_MICE_1000r_1$PB[8],huhu_MICE_1000r_2$PB[8],huhu_MICE_1000r_3$PB[8],huhu_MICE_1000r_4$PB[8],huhu_MICE_1000r_5$PB[8])
+SI<-c(huhu_SI_1000r_1$PB[8],huhu_SI_1000r_2$PB[8],huhu_SI_1000r_3$PB[8],huhu_SI_1000r_4$PB[8],huhu_SI_1000r_5$PB[8])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_depS<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depS, id = "Lmis")
+jpeg("1000r_PB_8.jpeg", quality = 100)
+gfg_plot8 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - Secondary")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot8+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### menntun2 Tertiary A
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[9], 5)
+CC<-c(huhu_CC_1000r_1$PB[9],huhu_CC_1000r_2$PB[9],huhu_CC_1000r_3$PB[9],huhu_CC_1000r_4$PB[9],huhu_CC_1000r_5$PB[9])
+PMM<-c(huhu_PMM_1000r_1$PB[9],huhu_PMM_1000r_2$PB[9],huhu_PMM_1000r_3$PB[9],huhu_PMM_1000r_4$PB[9],huhu_PMM_1000r_5$PB[9])
+MICE<-c(huhu_MICE_1000r_1$PB[9],huhu_MICE_1000r_2$PB[9],huhu_MICE_1000r_3$PB[9],huhu_MICE_1000r_4$PB[9],huhu_MICE_1000r_5$PB[9])
+SI<-c(huhu_SI_1000r_1$PB[9],huhu_SI_1000r_2$PB[9],huhu_SI_1000r_3$PB[9],huhu_SI_1000r_4$PB[9],huhu_SI_1000r_5$PB[9])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_depO<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_depO, id = "Lmis")
+jpeg("1000r_PB_9.jpeg", quality = 100)
+gfg_plot9 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryA")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot9+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### menntun2 Tertiary B
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[10], 5)
+CC<-c(huhu_CC_1000r_1$PB[10],huhu_CC_1000r_2$PB[10],huhu_CC_1000r_3$PB[10],huhu_CC_1000r_4$PB[10],huhu_CC_1000r_5$PB[10])
+PMM<-c(huhu_PMM_1000r_1$PB[10],huhu_PMM_1000r_2$PB[10],huhu_PMM_1000r_3$PB[10],huhu_PMM_1000r_4$PB[10],huhu_PMM_1000r_5$PB[10])
+MICE<-c(huhu_MICE_1000r_1$PB[10],huhu_MICE_1000r_2$PB[10],huhu_MICE_1000r_3$PB[10],huhu_MICE_1000r_4$PB[10],huhu_MICE_1000r_5$PB[10])
+SI<-c(huhu_SI_1000r_1$PB[10],huhu_SI_1000r_2$PB[10],huhu_SI_1000r_3$PB[10],huhu_SI_1000r_4$PB[10],huhu_SI_1000r_5$PB[10])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_menS<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menS, id = "Lmis")
+jpeg("1000r_PB_10.jpeg", quality = 100)
+gfg_plot10 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Education - TertiaryB")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot10+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### TekjurEigin 301-500
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[11], 5)
+CC<-c(huhu_CC_1000r_1$PB[11],huhu_CC_1000r_2$PB[11],huhu_CC_1000r_3$PB[11],huhu_CC_1000r_4$PB[11],huhu_CC_1000r_5$PB[11])
+PMM<-c(huhu_PMM_1000r_1$PB[11],huhu_PMM_1000r_2$PB[11],huhu_PMM_1000r_3$PB[11],huhu_PMM_1000r_4$PB[11],huhu_PMM_1000r_5$PB[11])
+MICE<-c(huhu_MICE_1000r_1$PB[11],huhu_MICE_1000r_2$PB[11],huhu_MICE_1000r_3$PB[11],huhu_MICE_1000r_4$PB[11],huhu_MICE_1000r_5$PB[11])
+SI<-c(huhu_SI_1000r_1$PB[11],huhu_SI_1000r_2$PB[11],huhu_SI_1000r_3$PB[11],huhu_SI_1000r_4$PB[11],huhu_SI_1000r_5$PB[11])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_menTA<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTA, id = "Lmis")
+jpeg("1000r_PB_11.jpeg", quality = 100)
+gfg_plot11 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 301-500")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot11+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+
+### tekjurEigin 501-700
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[12], 5)
+CC<-c(huhu_CC_1000r_1$PB[12],huhu_CC_1000r_2$PB[12],huhu_CC_1000r_3$PB[12],huhu_CC_1000r_4$PB[12],huhu_CC_1000r_5$PB[12])
+PMM<-c(huhu_PMM_1000r_1$PB[12],huhu_PMM_1000r_2$PB[12],huhu_PMM_1000r_3$PB[12],huhu_PMM_1000r_4$PB[12],huhu_PMM_1000r_5$PB[12])
+MICE<-c(huhu_MICE_1000r_1$PB[12],huhu_MICE_1000r_2$PB[12],huhu_MICE_1000r_3$PB[12],huhu_MICE_1000r_4$PB[12],huhu_MICE_1000r_5$PB[12])
+SI<-c(huhu_SI_1000r_1$PB[12],huhu_SI_1000r_2$PB[12],huhu_SI_1000r_3$PB[12],huhu_SI_1000r_4$PB[12],huhu_SI_1000r_5$PB[12])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_menTB<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_menTB, id = "Lmis")
+jpeg("1000r_PB_12.jpeg", quality = 100)
+gfg_plot12 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 501-700")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot12+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### tekjurEigin 700+
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[13], 5)
+CC<-c(huhu_CC_1000r_1$PB[13],huhu_CC_1000r_2$PB[13],huhu_CC_1000r_3$PB[13],huhu_CC_1000r_4$PB[13],huhu_CC_1000r_5$PB[13])
+PMM<-c(huhu_PMM_1000r_1$PB[13],huhu_PMM_1000r_2$PB[13],huhu_PMM_1000r_3$PB[13],huhu_PMM_1000r_4$PB[13],huhu_PMM_1000r_5$PB[13])
+MICE<-c(huhu_MICE_1000r_1$PB[13],huhu_MICE_1000r_2$PB[13],huhu_MICE_1000r_3$PB[13],huhu_MICE_1000r_4$PB[13],huhu_MICE_1000r_5$PB[13])
+SI<-c(huhu_SI_1000r_1$PB[13],huhu_SI_1000r_2$PB[13],huhu_SI_1000r_3$PB[13],huhu_SI_1000r_4$PB[13],huhu_SI_1000r_5$PB[13])
+```
+
+
+
+```{r}
+gogn_ampute_reg_tE1<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE1, id = "Lmis")
+jpeg("1000r_PB_13.jpeg", quality = 100)
+gfg_plot13 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Income - 700+")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none") 
+gfg_plot13+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+```
+
+
+
+### fjolsamband - single or widowed
+
+
+
+```{r}
+True<- rep(fit_CC_tidy$estimate[14], 5)
+CC<-c(huhu_CC_1000r_1$PB[14],huhu_CC_1000r_2$PB[14],huhu_CC_1000r_3$PB[14],huhu_CC_1000r_4$PB[14],huhu_CC_1000r_5$PB[14])
+PMM<-c(huhu_PMM_1000r_1$PB[14],huhu_PMM_1000r_2$PB[14],huhu_PMM_1000r_3$PB[14],huhu_PMM_1000r_4$PB[14],huhu_PMM_1000r_5$PB[14])
+MICE<-c(huhu_MICE_1000r_1$PB[14],huhu_MICE_1000r_2$PB[14],huhu_MICE_1000r_3$PB[14],huhu_MICE_1000r_4$PB[14],huhu_MICE_1000r_5$PB[14])
+SI<-c(huhu_SI_1000r_1$PB[14],huhu_SI_1000r_2$PB[14],huhu_SI_1000r_3$PB[14],huhu_SI_1000r_4$PB[14],huhu_SI_1000r_5$PB[14])
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_tE2<-data.frame(Lmis,CC, PMM, MICE, SI)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE2, id = "Lmis")
+jpeg("1000r_PB_14.jpeg", quality = 100)
+gfg_plot14 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle("Cohabitation - Single or widowed")+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot14+ geom_hline(yintercept=5, linetype="dashed", color = "red")+scale_color_manual(values=mycolors)
+dev.off()
+
+```
+
+
+
+### R2
+
+
+
+
+
+```{r}
+True<- rep(R2gildi_rett, 5)
+CC<-c(mR2gildi_CC_1000r_1,mR2gildi_CC_1000r_2,mR2gildi_CC_1000r_3,mR2gildi_CC_1000r_4,mR2gildi_CC_1000r_5)
+PMM<-c(mR2gildi_PMM_1000r_1,mR2gildi_PMM_1000r_2,mR2gildi_PMM_1000r_3,mR2gildi_PMM_1000r_4,mR2gildi_PMM_1000r_5)
+MICE<-c(mR2gildi_MICE_1000r_1,mR2gildi_MICE_1000r_2,mR2gildi_MICE_1000r_3,mR2gildi_MICE_1000r_4,mR2gildi_MICE_1000r_5)
+SI<-c(mR2gildi_SI_1000r_1,mR2gildi_SI_1000r_2,mR2gildi_SI_1000r_3,mR2gildi_SI_1000r_4,mR2gildi_SI_1000r_5)
+```
+
+
+
+
+```{r}
+gogn_ampute_reg_tE2<-data.frame(Lmis,CC, PMM, MICE, SI, True)
+```
+
+
+
+
+```{r}
+data_long <- melt(gogn_ampute_reg_tE2, id = "Lmis")
+jpeg("1000r_R2.jpeg", quality = 100)
+gfg_plot14 <- ggplot(data_long,            
+               aes(x = Lmis,
+                   y = value,
+                   color = variable)) +  geom_line(size=1)+ scale_x_continuous(breaks = c( 0.1, 0.25, 0.5,0.75))+xlab("")+ylab("")+ggtitle(TeX("$R^2$ - 1000r"))+theme_bw()+ theme(text = element_text( family="LLB",size = 20))+theme(legend.position = "none")
+gfg_plot14+scale_color_manual(values=mycolors) + scale_y_continuous(limit = c(0.044-0.009, 0.044+0.009))
+dev.off()
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
