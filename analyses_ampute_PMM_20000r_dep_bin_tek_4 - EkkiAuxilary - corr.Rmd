@@ -1,0 +1,1004 @@
+---
+title: "beraSaman_PMM_20000r_m20EAux"
+author: "Marín Dögg Bjarnadóttir"
+date: '2022-09-02'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+#source("gogn_preprocess.R")
+```
+
+
+
+
+### Poisson a heilu gognin
+
+
+```{r}
+load("./gogn_og_imp/gognDNA20000r")
+```
+
+
+
+
+```{r}
+fitsDNA_correct <-geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), data=gognDNA20000r_rett,family=poisson, id=as.factor(pin))
+```
+
+```{r}
+summary(fitsDNA_correct)
+```
+
+```{r}
+tidy(fitsDNA_correct, exp=TRUE, conf.int = TRUE)
+```
+
+
+```{r}
+CC_correct<-exp(fitsDNA_correct$coefficients)
+```
+
+
+```{r}
+gognDNA20000r_rett$menntun2<-factor(gognDNA20000r_rett$menntun2, ordered=FALSE)
+gognDNA20000r_rett$tekjurEigin<-factor(gognDNA20000r_rett$tekjurEigin, ordered=FALSE)
+gognDNA20000r_rett$deprivation<-factor(gognDNA20000r_rett$deprivation, ordered=FALSE)
+gognDNA20000r_rett$audit3<-factor(gognDNA20000r_rett$audit3, ordered=FALSE)
+gognDNA20000r_rett$worstTrauma_freq<-factor(gognDNA20000r_rett$worstTrauma_freq, ordered=FALSE)
+gognDNA20000r_rett$ACE_f_total_cat<-factor(gognDNA20000r_rett$ACE_f_total_cat, ordered=FALSE)
+```
+
+
+
+```{r}
+library(rms)
+fitsDNA_correct2 <-lrm((binary_trait==1) ~ ACE_f_total_cat+ agecalculated + deprivation+menntun2+tekjurEigin+fjolSamband2+innflytNordurlond+husHeilbrigdisumd+stadaNuverandi2+vinnutimi+BMI+fjoldiBarna +reyk+audit3+worstTrauma_freq+GAD7_row_imputed_total+LEC_to_me_or_witness+PHQ9_row_imputed_total+PHQ15_total+PMS_row_imputed_total+PSQIA_row_imputed_total+PCL_row_imputed_total+PSQI_imputed_SQ, data=gognDNA20000r_rett, x=TRUE, y=TRUE)
+(fitsDNA_correct2)
+```
+
+```{r}
+validate(fitsDNA_correct2, B=200)
+```
+
+
+```{r}
+#NagelkerkeR2(fitsDNA_correct2)
+#pROC::roc(fitsDNA_correct2$y, fitsDNA_correct2$fitted.values)
+```
+
+
+
+
+## Missing 0.05
+
+```{r}
+load("./gogn_og_imp/imp_ampute_PMM_05_20000r_m20_corr")
+
+```
+
+
+
+### PMM
+
+
+
+```{r}
+plot(PMM_ampute_05_20000r_m20_corr)
+```
+
+
+
+```{r}
+fit_ampute_pmm05 <- with(PMM_ampute_05_20000r_m20_corr, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=as.factor(pin)))
+est_ampute_pmm05 <- pool(fit_ampute_pmm05) #otharfi tvi bara eitt imputation)
+coef_ampute_pmm05<-exp(summary(est_ampute_pmm05)$estimate)
+```
+
+
+### Evaluation PMM
+
+
+```{r}
+fit<-summary(fit_ampute_pmm05, conf.int=TRUE)
+
+coef<-14
+m<-20
+
+a <- fit$estimate
+datsss<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss[i]<-a[seq(i, length(a), coef)]
+}
+datsss<-data.frame(t(datsss))
+```
+
+```{r}
+b <- fit$std.error
+datsss_error<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_error[i]<-b[seq(i, length(b), coef)]
+}
+datsss_error<-data.frame(t(datsss_error))
+```
+
+
+```{r}
+true <- (fitsDNA_correct$coefficients)
+ci1<-(datsss-(1.96*datsss_error))
+ci2<-(datsss+(1.96*datsss_error))
+rM<-rowMeans(datsss)
+RB <- rM - true
+PB <- 100 * abs((rM - true)/ true)
+CR <- rowMeans(ci1< true & true < ci2)
+AW <- rowMeans(ci2 - ci1)
+ci1<-rowMeans(ci1)
+ci2<-rowMeans(ci2)
+est<-summary(est_ampute_pmm05)$estimate
+huhu05_EAux_corr<-data.frame(RB, PB, CR, AW,  ci1,true ,ci2,est)
+```
+
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+library(foreign)
+library(xtable)
+library(stargazer)
+#print(xtable(huhu05, digits=4,type = "latex"), file = "BeraSaman_eval_ampute_PMM_05.tex")
+```
+
+
+
+```{r}
+save(huhu05_EAux_corr, file="ampute_PMM_huhu05_20000r_m20_corrEAux_EAux")
+```
+
+
+
+## Missing 0.1
+
+
+
+```{r}
+load("./gogn_og_imp/imp_ampute_PMM_10_20000r_m20_corr")
+
+```
+
+
+
+
+### PMM
+
+
+```{r}
+plot(PMM_ampute_10_20000r_m20_corr)
+```
+
+
+```{r}
+fit_ampute_pmm10 <- with(PMM_ampute_10_20000r_m20_corr, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=as.factor(pin)))
+est_ampute_pmm10 <- pool(fit_ampute_pmm10) #otharfi tvi bara eitt imputation)
+coef_ampute_pmm10<-exp(summary(est_ampute_pmm10)$estimate)
+```
+
+
+### Evaluation PMM
+
+
+```{r}
+fit<-fit_ampute_pmm10
+
+coef<-14
+m<-20
+
+a <- summary(fit)$estimate
+datsss<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss[i]<-a[seq(i, length(a), coef)]
+}
+datsss<-data.frame(t(datsss))
+```
+
+```{r}
+b <- summary(fit)$std.error
+datsss_error<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_error[i]<-b[seq(i, length(b), coef)]
+}
+datsss_error<-data.frame(t(datsss_error))
+```
+
+
+
+```{r}
+true <- (fitsDNA_correct$coefficients)
+ci1<-(datsss-(1.96*datsss_error))
+ci2<-(datsss+(1.96*datsss_error))
+rM<-rowMeans(datsss)
+RB <- rM - true
+PB <- 100 * abs((rM - true)/ true)
+CR <- rowMeans(ci1< true & true < ci2)
+AW <- rowMeans(ci2 - ci1)
+ci1<-rowMeans(ci1)
+ci2<-rowMeans(ci2)
+est<-summary(est_ampute_pmm05)$estimate
+huhu10_EAux_corr<-data.frame(RB, PB, CR, AW,  ci1,true ,ci2,est)
+```
+
+```{r}
+save(huhu10_EAux_corr, file="ampute_PMM_huhu10_20000r_m20_corrEAux_EAux")
+```
+
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+
+#print(xtable(huhu10, digits=4,type = "latex"), file = "BeraSaman_eval_ampute_PMM_10.tex")
+```
+
+
+
+
+
+
+
+
+
+
+## Missing 0.25
+
+
+
+```{r}
+
+load("./gogn_og_imp/imp_ampute_PMM_25_20000r_m20_corr")
+
+```
+
+
+
+
+### PMM
+
+
+```{r}
+plot(PMM_ampute_25_20000r_m20_corr)
+```
+
+
+```{r}
+fit_ampute_pmm25 <- with(PMM_ampute_25_20000r_m20_corr, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=as.factor(pin)))
+est_ampute_pmm25 <- pool(fit_ampute_pmm25) #otharfi tvi bara eitt imputation)
+coef_ampute_pmm25<-exp(summary(est_ampute_pmm25)$estimate)
+```
+
+
+### Evaluation PMM
+
+
+```{r}
+fit<-fit_ampute_pmm25
+
+coef<-14
+m<-20
+
+a <- summary(fit)$estimate
+datsss<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss[i]<-a[seq(i, length(a), coef)]
+}
+datsss<-data.frame(t(datsss))
+```
+
+```{r}
+b <- summary(fit)$std.error
+datsss_error<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_error[i]<-b[seq(i, length(b), coef)]
+}
+datsss_error<-data.frame(t(datsss_error))
+```
+
+
+
+
+```{r}
+true <- (fitsDNA_correct$coefficients)
+ci1<-(datsss-(1.96*datsss_error))
+ci2<-(datsss+(1.96*datsss_error))
+rM<-rowMeans(datsss)
+RB <- rM - true
+PB <- 100 * abs((rM - true)/ true)
+CR <- rowMeans(ci1< true & true < ci2)
+AW <- rowMeans(ci2 - ci1)
+ci1<-rowMeans(ci1)
+ci2<-rowMeans(ci2)
+est<-summary(est_ampute_pmm05)$estimate
+huhu25_EAux_corr<-data.frame(RB, PB, CR, AW,  ci1,true ,ci2,est)
+```
+
+```{r}
+save(huhu25_EAux_corr, file="ampute_PMM_huhu25_20000r_m20_corrEAux_EAux")
+```
+
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+
+#print(xtable(huhu25, digits=4,type = "latex"), file = "BeraSaman_eval_ampute_PMM_25.tex")
+```
+
+
+
+
+
+
+
+## Missing 0.5
+
+
+
+```{r}
+
+load("./gogn_og_imp/imp_ampute_PMM_50_20000r_m20_corr")
+
+
+```
+
+
+
+
+### PMM
+
+
+```{r}
+plot(PMM_ampute_50_20000r_m20_corr)
+```
+
+
+```{r}
+fit_ampute_pmm50 <- with(PMM_ampute_50_20000r_m20_corr, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=as.factor(pin)))
+est_ampute_pmm50 <- pool(fit_ampute_pmm50) #otharfi tvi bara eitt imputation)
+coef_ampute_pmm50<-exp(summary(est_ampute_pmm50)$estimate)
+```
+
+
+### Evaluation PMM
+
+
+```{r}
+fit<-fit_ampute_pmm50
+
+coef<-14
+m<-20
+
+a <- summary(fit)$estimate
+datsss<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss[i]<-a[seq(i, length(a), coef)]
+}
+datsss<-data.frame(t(datsss))
+```
+
+```{r}
+b <- summary(fit)$std.error
+datsss_error<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_error[i]<-b[seq(i, length(b), coef)]
+}
+datsss_error<-data.frame(t(datsss_error))
+```
+
+
+
+
+```{r}
+true <- (fitsDNA_correct$coefficients)
+ci1<-(datsss-(1.96*datsss_error))
+ci2<-(datsss+(1.96*datsss_error))
+rM<-rowMeans(datsss)
+RB <- rM - true
+PB <- 100 * abs((rM - true)/ true)
+CR <- rowMeans(ci1< true & true < ci2)
+AW <- rowMeans(ci2 - ci1)
+ci1<-rowMeans(ci1)
+ci2<-rowMeans(ci2)
+est<-summary(est_ampute_pmm05)$estimate
+huhu50_EAux_corr<-data.frame(RB, PB, CR, AW,  ci1,true ,ci2,est)
+```
+
+```{r}
+save(huhu50_EAux_corr, file="ampute_PMM_huhu50_20000r_m20_corrEAux_EAux")
+```
+
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+
+#print(xtable(huhu50, digits=4,type = "latex"), file = "BeraSaman_eval_ampute_PMM_50.tex")
+```
+
+
+
+
+
+
+
+
+
+
+
+## Missing 0.75
+
+
+
+```{r}
+
+load("./gogn_og_imp/imp_ampute_PMM_75_20000r_m20_corr")
+
+
+```
+
+
+
+
+
+### PMM
+
+
+```{r}
+plot(PMM_ampute_75_20000r_m20_corr)
+```
+
+
+```{r}
+fit_ampute_pmm75 <- with(PMM_ampute_75_20000r_m20_corr, geeglm((binary_trait==1) ~ factor(ACE_f_total_cat, order=FALSE)+ agecalculated + factor(deprivation, order=FALSE)+factor(menntun2, order=FALSE)+factor(tekjurEigin, order=FALSE)+ factor(fjolSamband2, order=FALSE), family=poisson, id=as.factor(pin)))
+est_ampute_pmm75 <- pool(fit_ampute_pmm75) #otharfi tvi bara eitt imputation)
+coef_ampute_pmm75<-exp(summary(est_ampute_pmm75)$estimate)
+```
+
+
+### Evaluation PMM
+
+
+```{r}
+fit<-fit_ampute_pmm75
+
+coef<-14
+m<-20
+
+a <- summary(fit)$estimate
+datsss<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss[i]<-a[seq(i, length(a), coef)]
+}
+datsss<-data.frame(t(datsss))
+```
+
+```{r}
+b <- summary(fit)$std.error
+datsss_error<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_error[i]<-b[seq(i, length(b), coef)]
+}
+datsss_error<-data.frame(t(datsss_error))
+```
+
+
+
+
+```{r}
+true <- (fitsDNA_correct$coefficients)
+ci1<-(datsss-(1.96*datsss_error))
+ci2<-(datsss+(1.96*datsss_error))
+rM<-rowMeans(datsss)
+RB <- rM - true
+PB <- 100 * abs((rM - true)/ true)
+CR <- rowMeans(ci1< true & true < ci2)
+AW <- rowMeans(ci2 - ci1)
+ci1<-rowMeans(ci1)
+ci2<-rowMeans(ci2)
+est<-summary(est_ampute_pmm05)$estimate
+huhu75_EAux_corr<-data.frame(RB, PB, CR, AW,  ci1,true ,ci2,est)
+```
+
+```{r}
+save(huhu75_EAux_corr, file="ampute_PMM_huhu75_20000r_m20_corrEAux_EAux")
+```
+
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+
+#print(xtable(huhu75, digits=4,type = "latex"), file = "BeraSaman_eval_ampute_PMM_75.tex")
+```
+
+
+
+
+### ---------------
+
+
+```{r}
+beraSamanRegCoef_PMM_20000r_m20_corrEAux<-data.frame(coef_ampute_pmm05, coef_ampute_pmm10, coef_ampute_pmm25, coef_ampute_pmm50, coef_ampute_pmm75)
+save(beraSamanRegCoef_PMM_20000r_m20_corrEAux, file="beraSamanRegCoef_PMM_20000r_m20_corrEAux")
+```
+
+
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+
+#print(xtable(beraSamanRegCoef_PMM_20000r_m20_corrEAux, digits=4,type = "latex"), file = "beraSamanRegCoef_PMM_20000r_m20_corrEAux.tex")
+```
+
+
+```{r}
+CIfPMM_05<-(summary(pool(fit_ampute_pmm05), conf.int = TRUE)) # Bua til CI fyrir coef
+CIfPMM_10<-(summary(pool(fit_ampute_pmm10), conf.int = TRUE)) # Bua til CI fyrir coef
+CIfPMM_25<-(summary(pool(fit_ampute_pmm25), conf.int = TRUE)) # Bua til CI fyrir coef
+CIfPMM_50<-(summary(pool(fit_ampute_pmm50), conf.int = TRUE)) # Bua til CI fyrir coef
+CIfPMM_75<-(summary(pool(fit_ampute_pmm75), conf.int = TRUE)) # Bua til CI fyrir coef
+```
+
+
+```{r}
+
+PMM_SE_05<-CIfPMM_05$std.error
+PMM_SE_10<-CIfPMM_10$std.error
+PMM_SE_25<-CIfPMM_25$std.error
+PMM_SE_50<-CIfPMM_50$std.error
+PMM_SE_75<-CIfPMM_75$std.error
+
+```
+
+
+
+
+```{r}
+beraSaman_std.error_PMM_20000r_m20_corrEAux<-data.frame(PMM_SE_05, PMM_SE_10, PMM_SE_25, PMM_SE_50, PMM_SE_75)
+save(beraSaman_std.error_PMM_20000r_m20_corrEAux, file="beraSaman_std.error_PMM_20000r_m20_corrEAux")
+```
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+#print(xtable(beraSaman_std.error_PMM_20000r_m20_corrEAux, digits=4,type = "latex"), file = "BeraSaman_SE_PMM_20000r_m20_corrEAux.tex")
+```
+
+
+
+
+
+
+```{r}
+PMM_CI05<-exp(CIfPMM_05$`2.5 %`)
+PMM_CI205<-exp(CIfPMM_05$`97.5 %`)
+PMM_CI10<-exp(CIfPMM_10$`2.5 %`)
+PMM_CI210<-exp(CIfPMM_10$`97.5 %`)
+PMM_CI25<-exp(CIfPMM_25$`2.5 %`)
+PMM_CI225<-exp(CIfPMM_25$`97.5 %`)
+PMM_CI50<-exp(CIfPMM_50$`2.5 %`)
+PMM_CI250<-exp(CIfPMM_50$`97.5 %`)
+PMM_CI75<-exp(CIfPMM_75$`2.5 %`)
+PMM_CI275<-exp(CIfPMM_75$`97.5 %`)
+
+```
+
+
+
+```{r}
+beraSamanCI_PMM_20000r_m20_corrEAux<-data.frame(PMM_CI05, PMM_CI205, PMM_CI10, PMM_CI210, PMM_CI25, PMM_CI225, PMM_CI50, PMM_CI250, PMM_CI75, PMM_CI275)
+```
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+#print(xtable(beraSamanCI_PMM_20000r_m20_corrEAux, digits=4,type = "latex"), file = "BeraSamanCI_PMM_20000r_m20_corrEAux.tex")
+```
+
+
+
+```{r}
+PMM_p_05<-CIfPMM_05$p.value
+PMM_p_10<-CIfPMM_10$p.value
+PMM_p_25<-CIfPMM_25$p.value
+PMM_p_50<-CIfPMM_50$p.value
+PMM_p_75<-CIfPMM_75$p.value
+```
+
+```{r}
+beraSaman_p_PMM_20000r_m20_corrEAux<-data.frame(PMM_p_05, PMM_p_10, PMM_p_25, PMM_p_50, PMM_p_75)
+```
+
+```{r}
+beraSaman_std.error_PMM_20000r_m20_corrEAux<-data.frame(PMM_SE_05, PMM_SE_10, PMM_SE_25, PMM_SE_50, PMM_SE_75)
+save(beraSaman_p_PMM_20000r_m20_corrEAux, file="beraSaman_p_PMM_20000r_m20_corrEAux")
+```
+
+```{r}
+#Prenta ut nidurstodur i txt file fyrir latex
+#print(xtable(beraSaman_p_PMM_20000r_m20_corrEAux, digits=4,type = "latex"), file = "BeraSaman_p_PMM_20000r_m20_corrEAux.tex")
+```
+
+
+
+
+```{r}
+momo<-summary(fit,  conf.int=TRUE, exp=TRUE)
+```
+
+
+```{r}
+c <- momo$estimate
+datsss_c<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_c[i]<-c[seq(i, length(c), coef)]
+}
+datsss_c<-data.frame((datsss_c))
+```
+
+
+```{r}
+d <- momo$conf.low
+datsss_d<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_d[i]<-d[seq(i, length(d), coef)]
+}
+datsss_d<-data.frame((datsss_d))
+```
+
+
+```{r}
+e <- momo$conf.high
+datsss_e<-data.frame(matrix(ncol = coef, nrow = m))
+for (i in 1:coef) {
+  datsss_e[i]<-e[seq(i, length(e), coef)]
+}
+datsss_e<-data.frame((datsss_e))
+```
+
+
+
+
+
+
+
+```{r}
+load("./gogn_og_imp/ampute_PMM_huhu05_20000r_m20_lassoEAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu10_20000r_m20_lassoEAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu25_20000r_m20_lassoEAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu50_20000r_m20_lassoEAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu75_20000r_m20_lassoEAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu05_20000r_MAuxm20")
+load("./gogn_og_imp/ampute_PMM_huhu10_20000r_MAuxm20")
+load("./gogn_og_imp/ampute_PMM_huhu25_20000r_MAuxm20")
+load("./gogn_og_imp/ampute_PMM_huhu50_20000r_MAuxm20")
+load("./gogn_og_imp/ampute_PMM_huhu75_20000r_MAuxm20")
+load("./gogn_og_imp/ampute_PMM_huhu05_20000r_m20EAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu10_20000r_m20EAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu25_20000r_m20EAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu50_20000r_m20EAux_EAux")
+load("./gogn_og_imp/ampute_PMM_huhu75_20000r_m20EAux_EAux")
+
+```
+
+
+```{r}
+mean(huhu05_EAux_corr$PB)
+```
+
+```{r}
+mean(huhu05_EAux_lasso$PB)
+```
+
+
+
+```{r}
+mean(huhu05_EAux$PB)
+```
+
+
+```{r}
+mean(huhu05_MAuxm20$PB)
+```
+
+```{r}
+mean(huhu75_EAux_corr$PB)
+```
+
+
+```{r}
+mean(huhu75_EAux$PB)
+```
+
+
+```{r}
+mean(huhu75_MAuxm20$PB)
+```
+
+
+
+```{r}
+gygy<-data.frame(c(mean(huhu05_EAux$PB),mean(huhu10_EAux$PB),mean(huhu25_EAux$PB),mean(huhu50_EAux$PB),mean(huhu75_EAux$PB), (mean(huhu05_EAux$PB)+mean(huhu10_EAux$PB)+mean(huhu25_EAux$PB)+mean(huhu50_EAux$PB)+mean(huhu75_EAux$PB))/5),
+                 c(mean(huhu05_MAuxm20$PB),mean(huhu10_MAuxm20$PB),mean(huhu25_MAuxm20$PB),mean(huhu50_MAuxm20$PB),mean(huhu75_MAuxm20$PB),(mean(huhu05_MAuxm20$PB)+mean(huhu10_MAuxm20$PB)+mean(huhu25_MAuxm20$PB)+mean(huhu50_MAuxm20$PB)+mean(huhu75_MAuxm20$PB))/5),
+                 c(mean(huhu05_EAux_corr$PB),mean(huhu10_EAux_corr$PB),mean(huhu25_EAux_corr$PB),mean(huhu50_EAux_corr$PB),mean(huhu75_EAux_corr$PB),(mean(huhu05_EAux_corr$PB)+mean(huhu10_EAux_corr$PB)+mean(huhu25_EAux_corr$PB)+mean(huhu50_EAux_corr$PB)+mean(huhu75_EAux_corr$PB))/5)
+                 ,c(mean(huhu05_EAux_lasso$PB),mean(huhu10_EAux_lasso$PB),mean(huhu25_EAux_lasso$PB),mean(huhu50_EAux_lasso$PB),mean(huhu75_EAux_lasso$PB), (mean(huhu05_EAux_lasso$PB)+mean(huhu10_EAux_lasso$PB)+mean(huhu25_EAux_lasso$PB)+mean(huhu50_EAux_lasso$PB)+mean(huhu75_EAux_lasso$PB))/5))
+colnames(gygy)<-c("EAux", "MAux", "EAux_corr", "Lasso")
+rownames(gygy)<-c("0.05", "0.10", "0.25", "0.50", "0.75", "mean")
+gygy
+```
+
+
+```{r}
+hyhy<-data.frame(huhu05_EAux$est, huhu05_EAux_corr$est, huhu05_MAuxm20$est, huhu05_EAux$true)
+hyhy
+```
+
+
+```{r}
+hyhy2<-data.frame(huhu75_EAux$est, huhu75_EAux_corr$est, huhu75_MAuxm20$est, huhu75_EAux$true)
+hyhy2
+```
+
+```{r}
+var<-c(rep("Intercept", 1), rep("ACE_1", 1), rep("ACE_2", 1), rep("ACE_3-4", 1), rep("ACE_5+", 1),rep("Age", 1) , rep("Deprivation_Y", 1), rep("Education_Sec", 1), rep("Education_TA", 1), rep("Education_TB", 1), rep("Income_lowM", 1), rep("Income_highM", 1), rep("Income_high", 1),  rep("Cohabitation_Sin", 1))
+mis<-(rep("0.05",14))
+```
+
+```{r}
+d1<-data.frame(huhu05_EAux$PB)
+colnames(d1)<-"PBEAux"
+d2<-data.frame(huhu05_MAuxm20$PB)
+colnames(d2)<-"PBMAux"
+d3<-data.frame(huhu05_EAux_corr$PB)
+colnames(d3)<-"PBEAux_corr"
+d4<-data.frame(huhu05_EAux_lasso$PB)
+colnames(d4)<-"PBEAux_Lasso"
+```
+
+
+```{r}
+PB_mat_20000r_05<-data.frame(d1, d2,d3, d4)
+```
+
+
+```{r}
+PB_mat_20000r_05$var<-var
+```
+
+
+```{r}
+library(reshape)
+data_long_PB <- melt(PB_mat_20000r_05, id = "var")
+data_long_PB$mis<-mis
+
+```
+
+
+```{r}
+mycolors <- c("aquamarine2", "lightsalmon1", "mediumpurple1", "lightpink", "#355C7D")
+dplot <- ggplot(data_long_PB, aes(x=var, y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+dplot + geom_col(position = "dodge") + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left")+ theme_bw()+ scale_fill_discrete(name="",labels=c('No auxiliary', 'With auxiliary', 'Correlation', "Lasso"))+ theme(text = element_text( family="LLB",size = 20))+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ggtitle("5% Missing")+geom_hline(yintercept =5,linetype="dashed", color = "red") + theme(legend.position = "none")
+```
+
+
+
+```{r}
+d1<-data.frame(huhu10_EAux$PB)
+colnames(d1)<-"PBEAux"
+d2<-data.frame(huhu10_MAuxm20$PB)
+colnames(d2)<-"PBMAux"
+d3<-data.frame(huhu10_EAux_corr$PB)
+colnames(d3)<-"PBEAux_corr"
+d4<-data.frame(huhu10_EAux_lasso$PB)
+colnames(d4)<-"PBEAux_Lasso"
+```
+
+
+```{r}
+PB_mat_20000r_10<-data.frame(d1, d2,d3, d4)
+```
+
+
+```{r}
+PB_mat_20000r_10$var<-var
+```
+
+
+```{r}
+library(reshape)
+data_long_PB <- melt(PB_mat_20000r_10, id = "var")
+data_long_PB$mis<-mis
+
+```
+
+
+```{r}
+mycolors <- c("aquamarine2", "lightsalmon1", "mediumpurple1", "lightpink", "#355C7D")
+dplot <- ggplot(data_long_PB, aes(x=var, y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+dplot + geom_col(position = "dodge") + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left")+ theme_bw()+ scale_fill_discrete(name="",labels=c('No auxiliary', 'With auxiliary', 'Correlation', "Lasso"))+ theme(text = element_text( family="LLB",size = 20))+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ggtitle("10% Missing")+geom_hline(yintercept =5,linetype="dashed", color = "red") + theme(legend.position = "none")
+```
+
+
+
+
+
+
+```{r}
+d1<-data.frame(huhu25_EAux$PB)
+colnames(d1)<-"PBEAux"
+d2<-data.frame(huhu25_MAuxm20$PB)
+colnames(d2)<-"PBMAux"
+d3<-data.frame(huhu25_EAux_corr$PB)
+colnames(d3)<-"PBEAux_corr"
+d4<-data.frame(huhu25_EAux_lasso$PB)
+colnames(d4)<-"PBEAux_Lasso"
+```
+
+
+```{r}
+PB_mat_20000r_25<-data.frame(d1, d2,d3, d4)
+```
+
+
+```{r}
+PB_mat_20000r_25$var<-var
+```
+
+
+```{r}
+library(reshape)
+data_long_PB <- melt(PB_mat_20000r_25, id = "var")
+data_long_PB$mis<-mis
+
+```
+
+
+```{r}
+mycolors <- c("aquamarine2", "lightsalmon1", "mediumpurple1", "lightpink", "#355C7D")
+dplot <- ggplot(data_long_PB, aes(x=var, y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+dplot + geom_col(position = "dodge") + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left")+ theme_bw()+ scale_fill_discrete(name="",labels=c('No auxiliary', 'With auxiliary', 'Correlation', "Lasso"))+ theme(text = element_text( family="LLB",size = 20))+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ggtitle("25% Missing")+geom_hline(yintercept =5,linetype="dashed", color = "red") + theme(legend.position = "none")
+```
+
+
+
+
+```{r}
+d1<-data.frame(huhu50_EAux$PB)
+colnames(d1)<-"PBEAux"
+d2<-data.frame(huhu50_MAuxm20$PB)
+colnames(d2)<-"PBMAux"
+d3<-data.frame(huhu50_EAux_corr$PB)
+colnames(d3)<-"PBEAux_corr"
+d4<-data.frame(huhu50_EAux_lasso$PB)
+colnames(d4)<-"PBEAux_Lasso"
+```
+
+
+```{r}
+PB_mat_20000r_50<-data.frame(d1, d2,d3, d4)
+```
+
+
+```{r}
+PB_mat_20000r_50$var<-var
+```
+
+
+```{r}
+library(reshape)
+data_long_PB <- melt(PB_mat_20000r_50, id = "var")
+data_long_PB$mis<-mis
+
+```
+
+
+```{r}
+mycolors <- c("aquamarine2", "lightsalmon1", "mediumpurple1", "lightpink", "#355C7D")
+dplot <- ggplot(data_long_PB, aes(x=var, y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+dplot + geom_col(position = "dodge") + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left")+ theme_bw()+ scale_fill_discrete(name="",labels=c('No auxiliary', 'With auxiliary', 'Correlation', "Lasso"))+ theme(text = element_text( family="LLB",size = 20))+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ggtitle("50% Missing")+geom_hline(yintercept =5,linetype="dashed", color = "red") + theme(legend.position = "none")
+```
+
+
+
+
+```{r}
+d1<-data.frame(huhu75_EAux$PB)
+colnames(d1)<-"PBEAux"
+d2<-data.frame(huhu75_MAuxm20$PB)
+colnames(d2)<-"PBMAux"
+d3<-data.frame(huhu75_EAux_corr$PB)
+colnames(d3)<-"PBEAux_corr"
+d4<-data.frame(huhu75_EAux_lasso$PB)
+colnames(d4)<-"PBEAux_Lasso"
+```
+
+
+```{r}
+PB_mat_20000r_75<-data.frame(d1, d2,d3, d4)
+```
+
+
+```{r}
+PB_mat_20000r_75$var<-var
+```
+
+
+```{r}
+library(reshape)
+data_long_PB <- melt(PB_mat_20000r_75, id = "var")
+data_long_PB$mis<-mis
+
+```
+
+
+```{r}
+mycolors <- c("aquamarine2", "lightsalmon1", "mediumpurple1", "lightpink", "#355C7D")
+dplot <- ggplot(data_long_PB, aes(x=var, y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+dplot + geom_col(position = "dodge") + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left")+ theme_bw()+ scale_fill_discrete(name="",labels=c('No auxiliary', 'With auxiliary', 'Correlation', "Lasso"))+ theme(text = element_text( family="LLB",size = 20))+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ggtitle("75% Missing")+geom_hline(yintercept =5,linetype="dashed", color = "red") + theme(legend.position = "none")
+```
+
+
+
+
+
+
+```{r}
+mycolors <- c("aquamarine2", "lightsalmon1", "mediumpurple1", "lightpink", "#355C7D")
+dplot <- ggplot(data_long_PB, aes(x=var, y=value,fill = variable)) + 
+  xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+dplot + geom_col(position = "dodge") + 
+  xlab(NULL) + ylab(NULL) + 
+  theme(legend.position = "left")+ theme_bw()+ scale_fill_discrete(name="",labels=c('No auxiliary', 'With auxiliary', 'Correlation', "Lasso"))+ theme(text = element_text( family="LLB",size = 20))+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ggtitle("75% Missing")+geom_hline(yintercept =0.5,linetype="dashed", color = "red") 
+```
+
+
+
+
+
+```{r}
+Corr <- cor(sapply(gognDNA10000r_MNAR_rett, as.numeric),
+use = "pairwise.complete.obs", method = "spearman")
+Corr
+```
+
+
+```{r}
+library(corrplot)
+corrplot::corrplot(Corr, method = "square", type = "upper",
+tl.col = "black")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
