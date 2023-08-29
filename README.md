@@ -22,8 +22,11 @@ For the sample study analysis:
 The other files:
 
 Auxiliary_analysis_plots.Rmd  - This is where the auxiliary plots are created. Here is the 20.000 sample size, and again the only difference is to Ctrl-F.
+
 NA_plots.Rmd                  - This is where the NA plots are created
+
 toflur_ritgerd.R              - This is where some of the tables are created that are not created in the other files.
+
 
 
 Just to note, the analysis on when the missing data mechanism was MNAR, it was done exactly the same as in the sample study analysis with the only difference changing the
